@@ -146,8 +146,13 @@ export class APIClient {
                     return e.response.json().then(json => {
                         throw new APIClientStatusCodeError(json, e.statusCode);
                     }).catch(parseError => {
-                        // JSON could not be parsed -> rethrow original error
-                        throw e;
+                        if (!(parseError instanceof APIClientStatusCodeError)) {
+                            // rethrow original error if json parsing failed
+                            throw e;
+                        } else {
+                            // rethrow parsed error
+                            throw parseError;
+                        }
                     });
                 }
                 throw e; // rethrow unknown error
