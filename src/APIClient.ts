@@ -142,9 +142,12 @@ export class APIClient {
                 return response.json();
             }).catch(e => {
                 // transform error response into json
-                if (e instanceof APIClientStatusCodeError) {
+                if (e instanceof APIClientStatusCodeError && e.response) {
                     return e.response.json().then(json => {
                         throw new APIClientStatusCodeError(json, e.statusCode);
+                    }).catch(parseError => {
+                        // JSON could not be parsed -> rethrow original error
+                        throw e;
                     });
                 }
                 throw e; // rethrow unknown error
